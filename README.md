@@ -1,6 +1,6 @@
 # Volunteer Planner MVP
 
-Next.js + PostgreSQL-ready MVP for volunteer scheduling across multiple organizations.
+Next.js + MongoDB-ready MVP for volunteer scheduling across multiple organizations.
 
 ## MVP domain model
 
@@ -16,7 +16,7 @@ This project ships the first complete scheduling loop with these entities:
 - Assignment
 - Availability
 
-Prisma schema is located at `/home/runner/work/volunteer_planner/volunteer_planner/prisma/schema.prisma` and is configured for PostgreSQL via `DATABASE_URL`.
+Prisma schema is located at `/home/runner/work/volunteer_planner/volunteer_planner/prisma/schema.prisma` and is configured for MongoDB via `DATABASE_URL` in `/home/runner/work/volunteer_planner/volunteer_planner/prisma7.config.ts`.
 
 ## Screens included
 

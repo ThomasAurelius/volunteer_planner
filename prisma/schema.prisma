@@ -3,8 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
 }
 
 enum MembershipRole {
@@ -45,7 +44,7 @@ enum AvailabilityStatus {
 }
 
 model Organization {
-  id             String                   @id @default(cuid())
+  id             String                   @id @map("_id") @default(cuid())
   name           String
   slug           String                   @unique
   timezone       String
@@ -56,7 +55,7 @@ model Organization {
 }
 
 model Person {
-  id                 String                   @id @default(cuid())
+  id                 String                   @id @map("_id") @default(cuid())
   firstName          String
   lastName           String
   email              String                   @unique
@@ -68,7 +67,7 @@ model Person {
 }
 
 model OrganizationMembership {
-  id             String           @id @default(cuid())
+  id             String           @id @map("_id") @default(cuid())
   organizationId String
   personId       String
   role           MembershipRole
@@ -82,7 +81,7 @@ model OrganizationMembership {
 }
 
 model Project {
-  id             String        @id @default(cuid())
+  id             String        @id @map("_id") @default(cuid())
   organizationId String
   name           String
   description    String?
@@ -98,7 +97,7 @@ model Project {
 }
 
 model Role {
-  id          String   @id @default(cuid())
+  id          String   @id @map("_id") @default(cuid())
   projectId   String
   name        String
   description String?
@@ -111,7 +110,7 @@ model Role {
 }
 
 model Shift {
-  id        String      @id @default(cuid())
+  id        String      @id @map("_id") @default(cuid())
   projectId String
   title     String
   startAt   DateTime
@@ -127,7 +126,7 @@ model Shift {
 }
 
 model ShiftRequirement {
-  id             String  @id @default(cuid())
+  id             String  @id @map("_id") @default(cuid())
   shiftId         String
   roleId          String
   quantity        Int
@@ -140,7 +139,7 @@ model ShiftRequirement {
 }
 
 model Assignment {
-  id        String           @id @default(cuid())
+  id        String           @id @map("_id") @default(cuid())
   shiftId   String
   personId  String
   roleId    String
@@ -156,7 +155,7 @@ model Assignment {
 }
 
 model Availability {
-  id             String             @id @default(cuid())
+  id             String             @id @map("_id") @default(cuid())
   personId       String
   organizationId String
   startAt        DateTime
