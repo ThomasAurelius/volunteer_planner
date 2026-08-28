@@ -23,17 +23,17 @@ export default async function PeoplePage({ searchParams }: PageProps) {
     <div>
       <Navigation organizationSlug={organization.slug} />
       <main className="mx-auto w-full max-w-6xl px-6 py-8">
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold">People</h2>
-          <p className="mt-2 text-sm text-zinc-600">Search: append <code>?query=name</code> to this URL.</p>
+          <p className="mt-2 text-sm text-slate-600">Search: append <code>?query=name</code> to this URL.</p>
           <ul className="mt-4 grid gap-3">
             {orgPeople.map((person) => (
-              <li key={person.id} className="rounded-lg border border-zinc-200 p-4">
+              <li key={person.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="font-medium">
                   {person.firstName} {person.lastName}
                 </p>
-                <p className="text-sm text-zinc-600">{person.email}</p>
-                <Link href={`/people/${person.id}?org=${organization.slug}`} className="mt-2 inline-flex text-sm underline">
+                <p className="text-sm text-slate-600">{person.email}</p>
+                <Link href={`/people/${person.id}?org=${organization.slug}`} className="mt-2 inline-flex text-sm font-medium text-indigo-700 underline hover:text-indigo-900">
                   Person detail
                 </Link>
               </li>

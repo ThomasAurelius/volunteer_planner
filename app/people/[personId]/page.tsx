@@ -21,30 +21,30 @@ export default async function PersonDetailPage({ params, searchParams }: PagePro
     <div>
       <Navigation organizationSlug={organization.slug} />
       <main className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8">
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold">
             {detail.person.firstName} {detail.person.lastName}
           </h2>
-          <p className="text-sm text-zinc-600">{detail.person.email}</p>
+          <p className="text-sm text-slate-600">{detail.person.email}</p>
           <p className="mt-2 text-sm">Role: {detail.membership?.role ?? "Unknown"}</p>
         </section>
 
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h3 className="font-semibold">Assignments</h3>
           <ul className="mt-3 grid gap-2">
             {detail.assignments.map(({ assignment, shift, project, role }) => (
-              <li key={assignment.id} className="rounded bg-zinc-100 px-3 py-2 text-sm">
+              <li key={assignment.id} className="rounded bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
                 {project.name} · {shift.title} · {role.name} · {assignment.status} · {formatDateRange(shift.startAt, shift.endAt)}
               </li>
             ))}
           </ul>
         </section>
 
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h3 className="font-semibold">Availability</h3>
           <ul className="mt-3 grid gap-2">
             {detail.availability.map((item) => (
-              <li key={item.id} className="rounded bg-zinc-100 px-3 py-2 text-sm">
+              <li key={item.id} className="rounded bg-slate-100 px-3 py-2 text-sm text-slate-700">
                 {item.status} · {formatDateRange(item.startAt, item.endAt)}
               </li>
             ))}
