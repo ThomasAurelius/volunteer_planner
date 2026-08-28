@@ -15,40 +15,40 @@ export default async function VolunteerPortalPage({ searchParams }: PageProps) {
     <div>
       <Navigation organizationSlug={organization.slug} />
       <main className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8">
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold">My Schedule</h2>
           <ul className="mt-4 grid gap-3">
             {portal.myAssignments.map(({ assignment, shift, role, project }) => (
-              <li key={assignment.id} className="rounded-lg border border-zinc-200 p-4">
+              <li key={assignment.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="font-medium">{project.name}</p>
-                <p className="text-sm text-zinc-600">{shift.title}</p>
-                <p className="text-sm text-zinc-600">{formatDateRange(shift.startAt, shift.endAt)}</p>
+                <p className="text-sm text-slate-600">{shift.title}</p>
+                <p className="text-sm text-slate-600">{formatDateRange(shift.startAt, shift.endAt)}</p>
                 <p className="mt-1 text-sm">Role: {role.name}</p>
                 <div className="mt-3 flex gap-2 text-xs">
-                  <span className="rounded bg-emerald-100 px-3 py-1">Confirm</span>
-                  <span className="rounded bg-rose-100 px-3 py-1">Decline</span>
+                  <span className="rounded bg-emerald-100 px-3 py-1 text-emerald-800 font-medium">Confirm</span>
+                  <span className="rounded bg-rose-100 px-3 py-1 text-rose-800 font-medium">Decline</span>
                 </div>
               </li>
             ))}
           </ul>
         </section>
 
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h3 className="font-semibold">Open Shifts</h3>
           <ul className="mt-3 grid gap-2 text-sm">
             {portal.openShifts.map(({ shift, coverage }) => (
-              <li key={shift.id} className="rounded bg-zinc-100 px-3 py-2">
+              <li key={shift.id} className="rounded bg-indigo-50 px-3 py-2 text-indigo-800">
                 {shift.title} · {formatDateRange(shift.startAt, shift.endAt)} · {coverage.open} needed
               </li>
             ))}
           </ul>
         </section>
 
-        <section className="rounded-xl border border-zinc-200 bg-white p-6">
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
           <h3 className="font-semibold">My Availability</h3>
           <ul className="mt-3 grid gap-2 text-sm">
             {portal.availability.map((item) => (
-              <li key={item.id} className="rounded bg-zinc-100 px-3 py-2">
+              <li key={item.id} className="rounded bg-slate-100 px-3 py-2 text-slate-700">
                 {item.status} · {formatDateRange(item.startAt, item.endAt)}
               </li>
             ))}
