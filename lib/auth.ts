@@ -67,7 +67,12 @@ export async function signToken(payload: JwtPayload): Promise<string> {
 
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
-    const [header, body, signature] = token.split(".");
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    const [header, body, signature] = parts;
     if (!header || !body || !signature) {
       return null;
     }

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { signToken, verifyToken } from "./auth";
 
@@ -22,5 +22,16 @@ describe("auth token helpers", () => {
     const tampered = `${header}.${body}.invalid-signature`;
 
     await expect(verifyToken(tampered)).resolves.toBeNull();
+  });
+
+  it("returns null for expired tokens", async () => {
+    const nowSpy = vi.spyOn(Date, "now");
+    nowSpy.mockReturnValue(0);
+    const token = await signToken({ sub: "user-123", email: "test@example.com" });
+
+    nowSpy.mockReturnValue((60 * 60 * 24 * 8) * 1000);
+    await expect(verifyToken(token)).resolves.toBeNull();
+
+    nowSpy.mockRestore();
   });
 });
