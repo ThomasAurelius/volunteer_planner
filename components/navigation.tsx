@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { organizations } from "@/lib/mvp-data";
+import { LogoutButton } from "@/components/logout-button";
 
 type NavigationProps = {
   organizationSlug: string;
@@ -35,6 +36,7 @@ export function Navigation({ organizationSlug }: NavigationProps) {
           <Link className="text-zinc-700 hover:text-zinc-900" href={`/settings${query}`}>
             Organization Settings
           </Link>
+          <LogoutButton />
         </nav>
       </div>
       <div className="mx-auto flex w-full max-w-6xl gap-2 px-6 pb-4 text-xs text-zinc-600">
