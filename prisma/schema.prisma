@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipRole {
+  VOLUNTEER
+  COORDINATOR
+  ADMIN
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ShiftStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  CONFIRMED
+  DECLINED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+model Organization {
+  id             String                   @id @default(cuid())
+  name           String
+  slug           String                   @unique
+  timezone       String
+  createdAt      DateTime                 @default(now())
+  memberships    OrganizationMembership[]
+  projects       Project[]
+  availabilities Availability[]
+}
+
+model Person {
+  id                 String                   @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String                   @unique
+  phone              String?
+  memberships        OrganizationMembership[]
+  assignments        Assignment[]
+  availabilities     Availability[]
+  coordinatedProjects Project[]               @relation("ProjectCoordinator")
+}
+
+model OrganizationMembership {
+  id             String           @id @default(cuid())
+  organizationId String
+  personId       String
+  role           MembershipRole
+  status         MembershipStatus @default(ACTIVE)
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  person       Person       @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, personId])
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  location       String?
+  status         ProjectStatus @default(ACTIVE)
+  coordinatorId  String?
+  createdAt      DateTime      @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  coordinator  Person?      @relation("ProjectCoordinator", fields: [coordinatorId], references: [id])
+  roles        Role[]
+  shifts       Shift[]
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requirements ShiftRequirement[]
+  assignments  Assignment[]
+
+  @@unique([projectId, name])
+}
+
+model Shift {
+  id        String      @id @default(cuid())
+  projectId String
+  title     String
+  startAt   DateTime
+  endAt     DateTime
+  location  String?
+  notes     String?
+  status    ShiftStatus @default(DRAFT)
+  createdAt DateTime    @default(now())
+
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requirements ShiftRequirement[]
+  assignments  Assignment[]
+}
+
+model ShiftRequirement {
+  id             String  @id @default(cuid())
+  shiftId         String
+  roleId          String
+  quantity        Int
+  allowSelfSignup Boolean @default(true)
+
+  shift Shift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  role  Role  @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@unique([shiftId, roleId])
+}
+
+model Assignment {
+  id        String           @id @default(cuid())
+  shiftId   String
+  personId  String
+  roleId    String
+  status    AssignmentStatus @default(ASSIGNED)
+  notes     String?
+  createdAt DateTime         @default(now())
+
+  shift  Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Restrict)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@index([personId, shiftId])
+}
+
+model Availability {
+  id             String             @id @default(cuid())
+  personId       String
+  organizationId String
+  startAt        DateTime
+  endAt          DateTime
+  status         AvailabilityStatus
+  createdAt      DateTime           @default(now())
+
+  person       Person       @relation(fields: [personId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([personId, organizationId, startAt, endAt])
+}
