@@ -17,6 +17,20 @@ export type JwtPayload = {
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
+function asArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  if (
+    bytes.buffer instanceof ArrayBuffer &&
+    bytes.byteOffset === 0 &&
+    bytes.byteLength === bytes.buffer.byteLength
+  ) {
+    return bytes.buffer;
+  }
+
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 function toBase64Url(bytes: Uint8Array): string {
   let base64: string;
   if (typeof btoa === "function") {
@@ -43,7 +57,7 @@ function fromBase64Url(input: string): Uint8Array | null {
 }
 
 async function importSigningKey() {
-  return crypto.subtle.importKey("raw", getSecretKey(), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+  return crypto.subtle.importKey("raw", asArrayBuffer(getSecretKey()), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
 }
 
 export async function signToken(payload: JwtPayload): Promise<string> {
@@ -61,7 +75,7 @@ export async function signToken(payload: JwtPayload): Promise<string> {
   );
   const message = `${header}.${body}`;
   const key = await importSigningKey();
-  const signature = await crypto.subtle.sign("HMAC", key, textEncoder.encode(message));
+  const signature = await crypto.subtle.sign("HMAC", key, asArrayBuffer(textEncoder.encode(message)));
   return `${message}.${toBase64Url(new Uint8Array(signature))}`;
 }
 
@@ -92,7 +106,7 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
 
     const key = await importSigningKey();
     const message = `${header}.${body}`;
-    const valid = await crypto.subtle.verify("HMAC", key, signatureBytes, textEncoder.encode(message));
+    const valid = await crypto.subtle.verify("HMAC", key, asArrayBuffer(signatureBytes), asArrayBuffer(textEncoder.encode(message)));
     if (!valid) {
       return null;
     }
