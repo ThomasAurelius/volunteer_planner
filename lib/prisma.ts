@@ -1,6 +1,9 @@
+import { loadEnvConfig } from "@next/env";
 import { PrismaClient } from "@prisma/client";
 import "dotenv/config";
 
+
+loadEnvConfig(process.cwd());
 
 const globalForPrisma = globalThis as unknown as { _prisma?: PrismaClient };
 
