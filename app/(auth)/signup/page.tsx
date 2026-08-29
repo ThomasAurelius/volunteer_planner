@@ -35,8 +35,12 @@ export default function SignupPage() {
       router.push("/");
       router.refresh();
     } else {
-      const data = await res.json();
-      setError(data.error ?? "Sign up failed");
+      try {
+        const data = await res.json();
+        setError(data.error ?? "Sign up failed");
+      } catch {
+        setError("Sign up failed");
+      }
     }
   }
 
