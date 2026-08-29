@@ -11,9 +11,10 @@ const config = readFileSync(path.join(prismaDir, "..", "prisma7.config.ts"), "ut
 describe("Prisma MongoDB configuration", () => {
   it("uses a MongoDB datasource configured from prisma7.config.ts", () => {
     expect(schema).toContain('provider = "mongodb"');
-    expect(schema).not.toContain('url      = env("DATABASE_URL")');
+    expect(schema).toContain('url      = env("DATABASE_URL")');
     expect(config).toContain('loadEnvConfig(process.cwd())');
-    expect(config).toContain('url: process.env["DATABASE_URL"]');
+    expect(config).toContain('const databaseUrl = process.env["DATABASE_URL"]');
+    expect(config).toContain("url: databaseUrl");
   });
 
   it("maps model ids to MongoDB _id fields", () => {
