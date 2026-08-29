@@ -28,8 +28,12 @@ export default function LoginPage() {
       router.push("/");
       router.refresh();
     } else {
-      const data = await res.json();
-      setError(data.error ?? "Login failed");
+      try {
+        const data = await res.json();
+        setError(data.error ?? "Login failed");
+      } catch {
+        setError("Login failed");
+      }
     }
   }
 
