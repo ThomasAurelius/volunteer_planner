@@ -45,10 +45,8 @@ describe("POST /api/auth/signup", () => {
   });
 
   it("returns 409 when insert hits a duplicate key race condition", async () => {
-    const duplicateKeyError = new MongoServerError({
-      message: "E11000 duplicate key error",
-      code: 11000,
-    });
+    const duplicateKeyError = new MongoServerError({ message: "E11000 duplicate key error" });
+    duplicateKeyError.code = 11000;
     mocks.insertOneMock.mockRejectedValue(duplicateKeyError);
 
     const response = await POST(
