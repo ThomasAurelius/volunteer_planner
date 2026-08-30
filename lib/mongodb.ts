@@ -4,10 +4,17 @@ const globalForMongo = globalThis as unknown as { _mongoClientPromise?: Promise<
 
 export function getMongoClientPromise(): Promise<MongoClient> {
   if (!globalForMongo._mongoClientPromise) {
-    if (!process.env.DATABASE_URL) {
+    const url = process.env.DATABASE_URL;
+    if (!url) {
       throw new Error("DATABASE_URL environment variable is not set");
     }
-    const client = new MongoClient(process.env.DATABASE_URL);
+    if (url.includes("<username>") || url.includes("<password>") || url.includes("<cluster-url>") || url.includes("<dbname>")) {
+      throw new Error(
+        "DATABASE_URL still contains placeholder values. " +
+          "Replace <username>, <password>, and <cluster-url> with your actual MongoDB Atlas credentials.",
+      );
+    }
+    const client = new MongoClient(url);
     const promise = client.connect().catch((err: unknown) => {
       // Reset so the next request retries rather than reusing a failed promise.
       // Only clear the cached promise if it is still the one that failed, to

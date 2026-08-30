@@ -16,7 +16,7 @@ This project ships the first complete scheduling loop with these entities:
 - Assignment
 - Availability
 
-Prisma schema is located at `/home/runner/work/volunteer_planner/volunteer_planner/prisma/schema.prisma` and is configured for MongoDB via `DATABASE_URL` in `/home/runner/work/volunteer_planner/volunteer_planner/prisma7.config.ts`.
+MongoDB is accessed directly via the native driver. Set `DATABASE_URL` in your `.env` file (see `.env.example`).
 
 ## Screens included
 
@@ -34,7 +34,15 @@ Use `?org=austin-mutual-aid` or `?org=community-food-network` to switch organiza
 
 ## Run locally
 
+1. Copy `.env.example` to `.env` and fill in your MongoDB connection string and JWT secret.
+   - For **MongoDB Atlas**: get the connection string from your cluster dashboard (Connect → Drivers).
+     Ensure your IP is listed under Atlas → Network Access, and that the database user's password
+     is URL-encoded if it contains special characters (`@` → `%40`, `#` → `%23`, etc.).
+   - For a **local MongoDB** instance: use `mongodb://localhost:27017/volunteer_planner`.
+
 ```bash
+cp .env.example .env
+# edit .env with your actual credentials
 npm install
 npm run dev
 ```
