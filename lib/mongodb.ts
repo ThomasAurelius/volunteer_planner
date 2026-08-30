@@ -30,7 +30,10 @@ export function getMongoClientPromise(): Promise<MongoClient> {
       ) {
         throw new Error(
           "MongoDB authentication failed. Check that DATABASE_URL contains the correct username and password. " +
-            "If the password contains special characters, ensure they are URL-encoded.",
+            "If the password contains special characters, ensure they are URL-encoded. " +
+            "Also verify that your Atlas IP access list includes this server's IP address, " +
+            "and that the database user has access to the target database (check authSource). " +
+            `Original error: ${err.message}`,
         );
       }
       throw err;
