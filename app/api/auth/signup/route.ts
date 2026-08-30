@@ -1,4 +1,5 @@
 import { hash } from "bcryptjs";
+import { MongoServerError } from "mongodb";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -43,6 +44,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    if (err instanceof MongoServerError && err.code === 11000) {
+      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+    }
     console.error("[signup]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
