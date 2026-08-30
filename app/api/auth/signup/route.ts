@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { signToken, COOKIE_NAME, TOKEN_MAX_AGE } from "@/lib/auth";
-import { getPrisma } from "@/lib/prisma";
+import { getDb } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
 
@@ -19,16 +19,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
-    const prisma = getPrisma();
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const db = await getDb();
+    const users = db.collection("users");
+
+    const existing = await users.findOne({ email });
     if (existing) {
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
 
     const passwordHash = await hash(password, 12);
-    const user = await prisma.user.create({ data: { email, passwordHash } });
+    const result = await users.insertOne({ email, passwordHash, createdAt: new Date() });
 
-    const token = await signToken({ sub: user.id, email: user.email });
+    const token = await signToken({ sub: result.insertedId.toString(), email });
 
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, token, {

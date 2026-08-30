@@ -7,15 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
-    "postinstall": "prisma generate --config prisma7.config.ts"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.10",
+    "mongodb": "^7.6.0",
     "next": "16.3.3",
-    "prisma": "^6.19.3",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },

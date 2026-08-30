@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { signToken, COOKIE_NAME, TOKEN_MAX_AGE } from "@/lib/auth";
-import { getPrisma } from "@/lib/prisma";
+import { getDb } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
 
@@ -15,18 +15,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
-    const prisma = getPrisma();
-    const user = await prisma.user.findUnique({ where: { email } });
+    const db = await getDb();
+    const user = await db.collection("users").findOne({ email });
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const valid = await compare(password, user.passwordHash);
+    const valid = await compare(password, user.passwordHash as string);
     if (!valid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = await signToken({ sub: user.id, email: user.email });
+    const token = await signToken({ sub: user._id.toString(), email: user.email as string });
 
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, token, {
