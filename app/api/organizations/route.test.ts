@@ -1,17 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MongoServerError } from "mongodb";
 
 const mocks = vi.hoisted(() => {
-  const findOneMock = vi.fn();
   const insertOneMock = vi.fn();
   const createIndexMock = vi.fn();
   const toArrayMock = vi.fn();
   const sortMock = vi.fn(() => ({ toArray: toArrayMock }));
   const findMock = vi.fn(() => ({ sort: sortMock }));
-  const collectionMock = vi.fn(() => ({ findOne: findOneMock, insertOne: insertOneMock, find: findMock, createIndex: createIndexMock }));
+  const collectionMock = vi.fn(() => ({ insertOne: insertOneMock, find: findMock, createIndex: createIndexMock }));
   const getDbMock = vi.fn(async () => ({ collection: collectionMock }));
 
   return {
-    findOneMock,
     insertOneMock,
     createIndexMock,
     toArrayMock,
@@ -29,7 +28,6 @@ import { GET, POST } from "./route";
 describe("organizations collection route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.findOneMock.mockResolvedValue(null);
     mocks.insertOneMock.mockResolvedValue({ insertedId: { toString: () => "507f1f77bcf86cd799439011" } });
     mocks.createIndexMock.mockResolvedValue("slug_1");
     mocks.toArrayMock.mockResolvedValue([
@@ -73,7 +71,9 @@ describe("organizations collection route", () => {
   });
 
   it("returns 409 when slug already exists", async () => {
-    mocks.findOneMock.mockResolvedValue({ _id: "existing" });
+    const duplicateKeyError = new MongoServerError({ message: "E11000 duplicate key error" });
+    duplicateKeyError.code = 11000;
+    mocks.insertOneMock.mockRejectedValue(duplicateKeyError);
 
     const response = await POST(
       new Request("http://localhost/api/organizations", {

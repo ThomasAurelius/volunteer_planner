@@ -36,11 +36,6 @@ export async function PUT(request: Request, context: RouteContext) {
     const organizations = db.collection("organizations");
     await ensureSlugUniqueIndex(organizations);
 
-    const existing = await organizations.findOne({ slug: payload.slug });
-    if (existing && existing._id.toString() !== organizationId) {
-      return NextResponse.json({ error: "Organization slug already exists" }, { status: 409 });
-    }
-
     const now = new Date();
     const updateResult = await organizations.updateOne(
       { _id: objectId },

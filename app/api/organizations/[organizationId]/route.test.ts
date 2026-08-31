@@ -1,15 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MongoServerError } from "mongodb";
 
 const mocks = vi.hoisted(() => {
-  const findOneMock = vi.fn();
   const updateOneMock = vi.fn();
   const deleteOneMock = vi.fn();
   const createIndexMock = vi.fn();
-  const collectionMock = vi.fn(() => ({ findOne: findOneMock, updateOne: updateOneMock, deleteOne: deleteOneMock, createIndex: createIndexMock }));
+  const collectionMock = vi.fn(() => ({ updateOne: updateOneMock, deleteOne: deleteOneMock, createIndex: createIndexMock }));
   const getDbMock = vi.fn(async () => ({ collection: collectionMock }));
 
   return {
-    findOneMock,
     updateOneMock,
     deleteOneMock,
     createIndexMock,
@@ -27,7 +26,6 @@ describe("organization detail route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.findOneMock.mockResolvedValue(null);
     mocks.updateOneMock.mockResolvedValue({ matchedCount: 1 });
     mocks.deleteOneMock.mockResolvedValue({ deletedCount: 1 });
     mocks.createIndexMock.mockResolvedValue("slug_1");
@@ -47,7 +45,9 @@ describe("organization detail route", () => {
   });
 
   it("returns 409 when another organization already uses the slug", async () => {
-    mocks.findOneMock.mockResolvedValue({ _id: { toString: () => "507f1f77bcf86cd799439012" } });
+    const duplicateKeyError = new MongoServerError({ message: "E11000 duplicate key error" });
+    duplicateKeyError.code = 11000;
+    mocks.updateOneMock.mockRejectedValue(duplicateKeyError);
 
     const response = await PUT(
       new Request(`http://localhost/api/organizations/${organizationId}`, {

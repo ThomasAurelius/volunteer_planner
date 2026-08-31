@@ -42,11 +42,6 @@ export async function POST(request: Request) {
     const organizations = db.collection("organizations");
     await ensureSlugUniqueIndex(organizations);
 
-    const existing = await organizations.findOne({ slug: payload.slug });
-    if (existing) {
-      return NextResponse.json({ error: "Organization slug already exists" }, { status: 409 });
-    }
-
     const now = new Date();
     const result = await organizations.insertOne({
       name: payload.name,
