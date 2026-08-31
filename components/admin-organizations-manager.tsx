@@ -145,6 +145,11 @@ export function AdminOrganizationsManager() {
   }
 
   async function handleDelete(organizationId: string) {
+    const confirmed = window.confirm("Delete this organization?");
+    if (!confirmed) {
+      return;
+    }
+
     setSubmitting(true);
     setMessage(null);
 
