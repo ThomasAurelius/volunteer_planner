@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { Navigation } from "@/components/navigation";
+import { ProjectScheduleManager } from "@/components/project-schedule-manager";
 import { formatDateRange, getOrganizationBySlug, getProjectDetail } from "@/lib/mvp-data";
 
 type PageProps = {
@@ -48,6 +49,10 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
+          <ProjectScheduleManager projectId={projectId} projectName={detail.project.name} />
         </section>
       </main>
     </div>
