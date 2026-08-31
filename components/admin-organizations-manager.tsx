@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { AdminOrganizationDetail } from "./admin-organization-detail";
+
 type Organization = {
   id: string;
   name: string;
@@ -25,6 +27,7 @@ export function AdminOrganizationsManager() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [expandedOrgId, setExpandedOrgId] = useState<string | null>(null);
 
   async function fetchOrganizations() {
     const response = await fetch("/api/organizations", { cache: "no-store" });
@@ -270,7 +273,19 @@ export function AdminOrganizationsManager() {
                   >
                     Delete
                   </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedOrgId((current) => (current === organization.id ? null : organization.id))
+                    }
+                    className="rounded border border-indigo-300 px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+                  >
+                    {expandedOrgId === organization.id ? "Hide details" : "Details & projects"}
+                  </button>
                 </div>
+                {expandedOrgId === organization.id && (
+                  <AdminOrganizationDetail organization={organization} />
+                )}
               </li>
             );
           })}
