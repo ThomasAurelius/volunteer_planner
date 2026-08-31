@@ -29,6 +29,7 @@ MongoDB is accessed directly via the native driver. Set `DATABASE_URL` in your `
 - Person Detail (`/people/[personId]`)
 - Volunteer Portal (`/volunteer`)
 - Organization Settings (`/settings`)
+- Admin (`/admin`)
 
 Use `?org=austin-mutual-aid` or `?org=community-food-network` to switch organizations.
 

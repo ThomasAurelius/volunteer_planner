@@ -36,6 +36,9 @@ export function Navigation({ organizationSlug }: NavigationProps) {
           <Link className="text-indigo-100 hover:text-white" href={`/settings${query}`}>
             Organization Settings
           </Link>
+          <Link className="text-indigo-100 hover:text-white" href={`/admin${query}`}>
+            Admin
+          </Link>
           <LogoutButton />
         </nav>
       </div>
