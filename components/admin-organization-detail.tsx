@@ -66,20 +66,26 @@ export function AdminOrganizationDetail({ organization }: Props) {
     const controller = new AbortController();
 
     async function load() {
-      const response = await fetch(
-        `/api/projects?organizationId=${encodeURIComponent(organization.id)}`,
-        { cache: "no-store", signal: controller.signal },
-      );
-      if (controller.signal.aborted) return;
-      if (!response.ok) {
+      try {
+        const response = await fetch(
+          `/api/projects?organizationId=${encodeURIComponent(organization.id)}`,
+          { cache: "no-store", signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        if (!response.ok) {
+          setMessage("Failed to load projects.");
+          setLoading(false);
+          return;
+        }
+        const data = (await response.json()) as { projects: Project[] };
+        if (controller.signal.aborted) return;
+        setProjects(data.projects);
+        setLoading(false);
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") return;
         setMessage("Failed to load projects.");
         setLoading(false);
-        return;
       }
-      const data = (await response.json()) as { projects: Project[] };
-      if (controller.signal.aborted) return;
-      setProjects(data.projects);
-      setLoading(false);
     }
 
     void load();
