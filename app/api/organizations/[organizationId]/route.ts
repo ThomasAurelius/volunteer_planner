@@ -1,31 +1,15 @@
-import { Collection, Document, MongoServerError, ObjectId } from "mongodb";
+import { MongoServerError, ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/mongodb";
+import { ensureSlugUniqueIndex, parseOrganizationPayload } from "../../../../lib/organizations";
+import type { OrganizationPayload } from "../../../../lib/organizations";
 
 export const dynamic = "force-dynamic";
-let ensureSlugIndexPromise: Promise<string> | null = null;
-
-type OrganizationPayload = {
-  name?: string;
-  slug?: string;
-  timezone?: string;
-};
 
 type RouteContext = {
   params: Promise<{ organizationId: string }>;
 };
-
-function normalize(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function toSlug(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 function parseOrganizationId(organizationId: string) {
   if (!ObjectId.isValid(organizationId)) {
@@ -33,30 +17,6 @@ function parseOrganizationId(organizationId: string) {
   }
 
   return new ObjectId(organizationId);
-}
-
-function parseOrganizationPayload(payload: OrganizationPayload) {
-  const name = normalize(payload.name);
-  const timezone = normalize(payload.timezone);
-  const rawSlug = normalize(payload.slug);
-  const slug = toSlug(rawSlug || name);
-
-  if (!name || !timezone || !slug) {
-    return null;
-  }
-
-  return { name, slug, timezone };
-}
-
-function ensureSlugUniqueIndex(organizations: Collection<Document>) {
-  if (!ensureSlugIndexPromise) {
-    ensureSlugIndexPromise = organizations.createIndex({ slug: 1 }, { unique: true }).catch((err: unknown) => {
-      ensureSlugIndexPromise = null;
-      throw err;
-    });
-  }
-
-  return ensureSlugIndexPromise;
 }
 
 export async function PUT(request: Request, context: RouteContext) {

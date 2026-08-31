@@ -1,59 +1,11 @@
-import { Collection, Document, MongoServerError } from "mongodb";
+import { MongoServerError } from "mongodb";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/mongodb";
+import { ensureSlugUniqueIndex, parseOrganizationPayload } from "../../../lib/organizations";
+import type { OrganizationPayload } from "../../../lib/organizations";
 
 export const dynamic = "force-dynamic";
-let ensureSlugIndexPromise: Promise<string> | null = null;
-
-type OrganizationPayload = {
-  name?: string;
-  slug?: string;
-  timezone?: string;
-};
-
-function normalize(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function toSlug(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function parseOrganizationPayload(payload: OrganizationPayload) {
-  const name = normalize(payload.name);
-  const timezone = normalize(payload.timezone);
-  const rawSlug = normalize(payload.slug);
-  const slug = toSlug(rawSlug || name);
-
-  if (!name) {
-    return { error: "Organization name is required" } as const;
-  }
-
-  if (!timezone) {
-    return { error: "Organization timezone is required" } as const;
-  }
-
-  if (!slug) {
-    return { error: "Organization slug is required" } as const;
-  }
-
-  return { name, slug, timezone } as const;
-}
-
-function ensureSlugUniqueIndex(organizations: Collection<Document>) {
-  if (!ensureSlugIndexPromise) {
-    ensureSlugIndexPromise = organizations.createIndex({ slug: 1 }, { unique: true }).catch((err: unknown) => {
-      ensureSlugIndexPromise = null;
-      throw err;
-    });
-  }
-
-  return ensureSlugIndexPromise;
-}
 
 export async function GET() {
   try {
@@ -82,8 +34,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const payload = parseOrganizationPayload((await request.json()) as OrganizationPayload);
-    if ("error" in payload) {
-      return NextResponse.json({ error: payload.error }, { status: 400 });
+    if (!payload) {
+      return NextResponse.json({ error: "Name, slug, and timezone are required" }, { status: 400 });
     }
 
     const db = await getDb();

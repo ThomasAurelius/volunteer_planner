@@ -60,7 +60,7 @@ describe("organizations collection route", () => {
     });
   });
 
-  it("returns 400 when name is missing", async () => {
+  it("returns 400 when required fields are missing", async () => {
     const response = await POST(
       new Request("http://localhost/api/organizations", {
         method: "POST",
@@ -69,7 +69,7 @@ describe("organizations collection route", () => {
     );
 
     expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({ error: "Organization name is required" });
+    await expect(response.json()).resolves.toEqual({ error: "Name, slug, and timezone are required" });
   });
 
   it("returns 409 when slug already exists", async () => {
