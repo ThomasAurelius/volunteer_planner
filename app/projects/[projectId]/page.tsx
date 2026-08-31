@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { Navigation } from "@/components/navigation";
+import { ProjectRoleManager } from "@/components/project-role-manager";
 import { ProjectScheduleManager } from "@/components/project-schedule-manager";
 import { formatDateRange } from "@/lib/mvp-data";
 import { getProjectPageData } from "@/lib/project-page-data";
@@ -35,18 +36,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
         </section>
 
         <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
-          <h3 className="font-semibold">Roles</h3>
-          {detail.roles.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-500">No roles yet.</p>
-          ) : (
-            <ul className="mt-3 grid gap-2">
-              {detail.roles.map((role) => (
-                <li key={role.id} className="rounded bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
-                  {role.name}
-                </li>
-              ))}
-            </ul>
-          )}
+          <ProjectRoleManager projectId={projectId} />
         </section>
 
         <section className="rounded-xl border border-indigo-200 bg-white p-6 shadow-sm">
