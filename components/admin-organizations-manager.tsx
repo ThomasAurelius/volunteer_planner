@@ -26,6 +26,14 @@ export function AdminOrganizationsManager() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  async function fetchOrganizations() {
+    const response = await fetch("/api/organizations", { cache: "no-store" });
+    if (!response.ok) {
+      return null;
+    }
+    return (await response.json()) as { organizations: Organization[] };
+  }
+
   async function loadOrganizations(options?: { setLoadingState?: boolean; resetMessage?: boolean }) {
     const setLoadingState = options?.setLoadingState ?? true;
     const resetMessage = options?.resetMessage ?? true;
@@ -37,14 +45,13 @@ export function AdminOrganizationsManager() {
       setMessage(null);
     }
 
-    const response = await fetch("/api/organizations", { cache: "no-store" });
-    if (!response.ok) {
+    const data = await fetchOrganizations();
+    if (!data) {
       setMessage("Failed to load organizations.");
       setLoading(false);
       return;
     }
 
-    const data = (await response.json()) as { organizations: Organization[] };
     setOrganizations(data.organizations);
     setDrafts(
       Object.fromEntries(
@@ -65,17 +72,13 @@ export function AdminOrganizationsManager() {
     let active = true;
 
     async function loadInitialOrganizations() {
-      const response = await fetch("/api/organizations", { cache: "no-store" });
+      const data = await fetchOrganizations();
       if (!active) return;
-
-      if (!response.ok) {
+      if (!data) {
         setMessage("Failed to load organizations.");
         setLoading(false);
         return;
       }
-
-      const data = (await response.json()) as { organizations: Organization[] };
-      if (!active) return;
 
       setOrganizations(data.organizations);
       setDrafts(

@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => {
   const findOneMock = vi.fn();
   const insertOneMock = vi.fn();
+  const createIndexMock = vi.fn();
   const toArrayMock = vi.fn();
   const sortMock = vi.fn(() => ({ toArray: toArrayMock }));
   const findMock = vi.fn(() => ({ sort: sortMock }));
-  const collectionMock = vi.fn(() => ({ findOne: findOneMock, insertOne: insertOneMock, find: findMock }));
+  const collectionMock = vi.fn(() => ({ findOne: findOneMock, insertOne: insertOneMock, find: findMock, createIndex: createIndexMock }));
   const getDbMock = vi.fn(async () => ({ collection: collectionMock }));
 
   return {
     findOneMock,
     insertOneMock,
+    createIndexMock,
     toArrayMock,
     sortMock,
     findMock,
@@ -29,6 +31,7 @@ describe("organizations collection route", () => {
     vi.clearAllMocks();
     mocks.findOneMock.mockResolvedValue(null);
     mocks.insertOneMock.mockResolvedValue({ insertedId: { toString: () => "507f1f77bcf86cd799439011" } });
+    mocks.createIndexMock.mockResolvedValue("slug_1");
     mocks.toArrayMock.mockResolvedValue([
       {
         _id: { toString: () => "507f1f77bcf86cd799439011" },

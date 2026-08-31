@@ -4,13 +4,15 @@ const mocks = vi.hoisted(() => {
   const findOneMock = vi.fn();
   const updateOneMock = vi.fn();
   const deleteOneMock = vi.fn();
-  const collectionMock = vi.fn(() => ({ findOne: findOneMock, updateOne: updateOneMock, deleteOne: deleteOneMock }));
+  const createIndexMock = vi.fn();
+  const collectionMock = vi.fn(() => ({ findOne: findOneMock, updateOne: updateOneMock, deleteOne: deleteOneMock, createIndex: createIndexMock }));
   const getDbMock = vi.fn(async () => ({ collection: collectionMock }));
 
   return {
     findOneMock,
     updateOneMock,
     deleteOneMock,
+    createIndexMock,
     collectionMock,
     getDbMock,
   };
@@ -28,6 +30,7 @@ describe("organization detail route", () => {
     mocks.findOneMock.mockResolvedValue(null);
     mocks.updateOneMock.mockResolvedValue({ matchedCount: 1 });
     mocks.deleteOneMock.mockResolvedValue({ deletedCount: 1 });
+    mocks.createIndexMock.mockResolvedValue("slug_1");
   });
 
   it("returns 400 for invalid organization id on update", async () => {

@@ -62,6 +62,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
     const db = await getDb();
     const organizations = db.collection("organizations");
+    await organizations.createIndex({ slug: 1 }, { unique: true });
 
     const existing = await organizations.findOne({ slug: payload.slug });
     if (existing && existing._id.toString() !== organizationId) {
