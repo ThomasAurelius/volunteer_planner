@@ -26,9 +26,16 @@ export function AdminOrganizationsManager() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  async function loadOrganizations() {
-    setLoading(true);
-    setMessage(null);
+  async function loadOrganizations(options?: { setLoadingState?: boolean; resetMessage?: boolean }) {
+    const setLoadingState = options?.setLoadingState ?? true;
+    const resetMessage = options?.resetMessage ?? true;
+
+    if (setLoadingState) {
+      setLoading(true);
+    }
+    if (resetMessage) {
+      setMessage(null);
+    }
 
     const response = await fetch("/api/organizations", { cache: "no-store" });
     if (!response.ok) {
@@ -55,7 +62,42 @@ export function AdminOrganizationsManager() {
   }
 
   useEffect(() => {
-    loadOrganizations();
+    let active = true;
+
+    async function loadInitialOrganizations() {
+      const response = await fetch("/api/organizations", { cache: "no-store" });
+      if (!active) return;
+
+      if (!response.ok) {
+        setMessage("Failed to load organizations.");
+        setLoading(false);
+        return;
+      }
+
+      const data = (await response.json()) as { organizations: Organization[] };
+      if (!active) return;
+
+      setOrganizations(data.organizations);
+      setDrafts(
+        Object.fromEntries(
+          data.organizations.map((organization) => [
+            organization.id,
+            {
+              name: organization.name,
+              slug: organization.slug,
+              timezone: organization.timezone,
+            },
+          ]),
+        ),
+      );
+      setLoading(false);
+    }
+
+    void loadInitialOrganizations();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
@@ -78,7 +120,7 @@ export function AdminOrganizationsManager() {
 
     setNewOrganization(emptyDraft);
     setMessage("Organization created.");
-    await loadOrganizations();
+    await loadOrganizations({ setLoadingState: false, resetMessage: false });
     setSubmitting(false);
   }
 
@@ -103,7 +145,7 @@ export function AdminOrganizationsManager() {
     }
 
     setMessage("Organization updated.");
-    await loadOrganizations();
+    await loadOrganizations({ setLoadingState: false, resetMessage: false });
     setSubmitting(false);
   }
 
@@ -123,7 +165,7 @@ export function AdminOrganizationsManager() {
     }
 
     setMessage("Organization deleted.");
-    await loadOrganizations();
+    await loadOrganizations({ setLoadingState: false, resetMessage: false });
     setSubmitting(false);
   }
 
