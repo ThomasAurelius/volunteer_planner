@@ -1,13 +1,32 @@
 import Link from "next/link";
 
-import { organizations } from "@/lib/mvp-data";
+import { getDb } from "@/lib/mongodb";
 import { LogoutButton } from "@/components/logout-button";
 
 type NavigationProps = {
   organizationSlug: string;
 };
 
-export function Navigation({ organizationSlug }: NavigationProps) {
+async function getLiveOrganizations() {
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection("organizations")
+      .find({})
+      .sort({ createdAt: 1 })
+      .toArray();
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      name: doc.name as string,
+      slug: doc.slug as string,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function Navigation({ organizationSlug }: NavigationProps) {
+  const organizations = await getLiveOrganizations();
   const query = `?org=${organizationSlug}`;
 
   return (
