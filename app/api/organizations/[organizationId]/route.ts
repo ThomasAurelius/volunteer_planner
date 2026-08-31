@@ -1,9 +1,10 @@
-import { MongoServerError, ObjectId } from "mongodb";
+import { Collection, Document, MongoServerError, ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
+let ensureSlugIndexPromise: Promise<string> | null = null;
 
 type OrganizationPayload = {
   name?: string;
@@ -47,6 +48,17 @@ function parseOrganizationPayload(payload: OrganizationPayload) {
   return { name, slug, timezone };
 }
 
+function ensureSlugUniqueIndex(organizations: Collection<Document>) {
+  if (!ensureSlugIndexPromise) {
+    ensureSlugIndexPromise = organizations.createIndex({ slug: 1 }, { unique: true }).catch((err: unknown) => {
+      ensureSlugIndexPromise = null;
+      throw err;
+    });
+  }
+
+  return ensureSlugIndexPromise;
+}
+
 export async function PUT(request: Request, context: RouteContext) {
   try {
     const { organizationId } = await context.params;
@@ -62,7 +74,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
     const db = await getDb();
     const organizations = db.collection("organizations");
-    await organizations.createIndex({ slug: 1 }, { unique: true });
+    await ensureSlugUniqueIndex(organizations);
 
     const existing = await organizations.findOne({ slug: payload.slug });
     if (existing && existing._id.toString() !== organizationId) {

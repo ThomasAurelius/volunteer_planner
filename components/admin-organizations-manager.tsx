@@ -34,6 +34,22 @@ export function AdminOrganizationsManager() {
     return (await response.json()) as { organizations: Organization[] };
   }
 
+  function applyOrganizations(organizationList: Organization[]) {
+    setOrganizations(organizationList);
+    setDrafts(
+      Object.fromEntries(
+        organizationList.map((organization) => [
+          organization.id,
+          {
+            name: organization.name,
+            slug: organization.slug,
+            timezone: organization.timezone,
+          },
+        ]),
+      ),
+    );
+  }
+
   async function loadOrganizations(options?: { setLoadingState?: boolean; resetMessage?: boolean }) {
     const setLoadingState = options?.setLoadingState ?? true;
     const resetMessage = options?.resetMessage ?? true;
@@ -52,19 +68,7 @@ export function AdminOrganizationsManager() {
       return;
     }
 
-    setOrganizations(data.organizations);
-    setDrafts(
-      Object.fromEntries(
-        data.organizations.map((organization) => [
-          organization.id,
-          {
-            name: organization.name,
-            slug: organization.slug,
-            timezone: organization.timezone,
-          },
-        ]),
-      ),
-    );
+    applyOrganizations(data.organizations);
     setLoading(false);
   }
 
@@ -80,19 +84,7 @@ export function AdminOrganizationsManager() {
         return;
       }
 
-      setOrganizations(data.organizations);
-      setDrafts(
-        Object.fromEntries(
-          data.organizations.map((organization) => [
-            organization.id,
-            {
-              name: organization.name,
-              slug: organization.slug,
-              timezone: organization.timezone,
-            },
-          ]),
-        ),
-      );
+      applyOrganizations(data.organizations);
       setLoading(false);
     }
 
@@ -179,6 +171,7 @@ export function AdminOrganizationsManager() {
         <div className="grid gap-3 sm:grid-cols-3">
           <input
             className="rounded border border-indigo-200 bg-white px-3 py-2 text-sm"
+            aria-label="New organization name"
             placeholder="Organization name"
             value={newOrganization.name}
             onChange={(event) => setNewOrganization((current) => ({ ...current, name: event.target.value }))}
@@ -186,12 +179,14 @@ export function AdminOrganizationsManager() {
           />
           <input
             className="rounded border border-indigo-200 bg-white px-3 py-2 text-sm"
+            aria-label="New organization slug"
             placeholder="Slug (optional)"
             value={newOrganization.slug}
             onChange={(event) => setNewOrganization((current) => ({ ...current, slug: event.target.value }))}
           />
           <input
             className="rounded border border-indigo-200 bg-white px-3 py-2 text-sm"
+            aria-label="New organization timezone"
             placeholder="Timezone"
             value={newOrganization.timezone}
             onChange={(event) => setNewOrganization((current) => ({ ...current, timezone: event.target.value }))}
@@ -221,6 +216,7 @@ export function AdminOrganizationsManager() {
                 <div className="grid gap-3 sm:grid-cols-3">
                   <input
                     className="rounded border border-slate-300 px-3 py-2 text-sm"
+                    aria-label="Organization name"
                     value={draft.name}
                     onChange={(event) =>
                       setDrafts((current) => ({
@@ -231,6 +227,7 @@ export function AdminOrganizationsManager() {
                   />
                   <input
                     className="rounded border border-slate-300 px-3 py-2 text-sm"
+                    aria-label="Organization slug"
                     value={draft.slug}
                     onChange={(event) =>
                       setDrafts((current) => ({
@@ -241,6 +238,7 @@ export function AdminOrganizationsManager() {
                   />
                   <input
                     className="rounded border border-slate-300 px-3 py-2 text-sm"
+                    aria-label="Organization timezone"
                     value={draft.timezone}
                     onChange={(event) =>
                       setDrafts((current) => ({
