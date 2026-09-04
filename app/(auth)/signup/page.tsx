@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -10,10 +10,19 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState("");
   const [realName, setRealName] = useState("");
   const [phone, setPhone] = useState("");
+  const [organizationId, setOrganizationId] = useState("");
+  const [organizations, setOrganizations] = useState<{ id: string; name: string }[]>([]);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    void fetch("/api/organizations")
+      .then((response) => (response.ok ? response.json() : { organizations: [] }))
+      .then((data: { organizations?: { id: string; name: string }[] }) => setOrganizations(data.organizations ?? []))
+      .catch(() => setOrganizations([]));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +38,7 @@ export default function SignupPage() {
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, displayName, realName, phone }),
+      body: JSON.stringify({ email, password, displayName, realName, phone, organizationId }),
     });
 
     setLoading(false);
@@ -72,6 +81,14 @@ export default function SignupPage() {
           <div className="grid gap-1">
             <label htmlFor="phone" className="text-sm font-medium text-zinc-700">Contact number</label>
             <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+          </div>
+
+          <div className="grid gap-1">
+            <label htmlFor="organization" className="text-sm font-medium text-zinc-700">Join an organization</label>
+            <select id="organization" value={organizationId} onChange={(e) => setOrganizationId(e.target.value)} className="rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+              <option value="">No organization yet</option>
+              {organizations.map((organization) => <option key={organization.id} value={organization.id}>{organization.name}</option>)}
+            </select>
           </div>
 
           <div className="grid gap-1">
