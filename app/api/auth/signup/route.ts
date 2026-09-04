@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, displayName, realName, phone, organizationId, role } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
@@ -29,7 +29,27 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await hash(password, 12);
-    const result = await users.insertOne({ email, passwordHash, createdAt: new Date() });
+    const now = new Date();
+    const result = await users.insertOne({
+      email: email.trim().toLowerCase(),
+      passwordHash,
+      displayName: typeof displayName === "string" && displayName.trim() ? displayName.trim() : email.split("@")[0],
+      realName: typeof realName === "string" ? realName.trim() : "",
+      phone: typeof phone === "string" ? phone.trim() : "",
+      createdAt: now,
+      updatedAt: now,
+    });
+    if (typeof organizationId === "string" && organizationId.trim()) {
+      await db.collection("memberships").createIndex({ organizationId: 1, personId: 1 }, { unique: true });
+      await db.collection("memberships").insertOne({
+        organizationId: organizationId.trim(),
+        personId: result.insertedId.toString(),
+        role: role === "manager" || role === "admin" ? role : "volunteer",
+        status: "active",
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
 
     const token = await signToken({ sub: result.insertedId.toString(), email });
 
